@@ -1,0 +1,172 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - MyTaskTrackerWebApp</title>
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/entypo.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/socicon.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/MyTaskTrackerWebApp.styles.css" asp-append-version="true"/>
+    <script src="https://kit.fontawesome.com/8aa18c8793.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="navbar-container">
+    <div class="navbar-dark bg-dark" data-sticky="top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg ">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index" id="logo-text">MyTaskTracker</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="icon-menu h4"></i>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
+                        </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Organization" asp-action="Index">Проекты</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Task" asp-action="TasksByUser" asp-route-email="@currentUser.Email">Задачи</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Task" asp-action="AddTask">Создать задачу</a>
+                            </li>
+                            @if (isAuthenticated && User.IsInRole("admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Organization" asp-action="AddOrganization">Добавить проект</a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                        }
+                    </ul>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle p-lg-0" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img alt="Image" src="/img/default-avatar-icon-of-social-me.jpg" class="avatar avatar-xs">
+                                </a>
+
+                                <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                                    @if (User.IsInRole("admin"))
+                                    {
+                                        <a class="dropdown-item disabled" asp-controller="" asp-action="" asp-route-id="@currentUser.Id">
+                                            <span class="h6 mb-0">@currentUser.Name @currentUser.Surname (Администратор)</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item disabled" asp-controller="" asp-action="" asp-route-id="@currentUser.Id">
+                                            <span class="h6 mb-0">@currentUser.Name @currentUser.Surname</span>
+                                        </a>
+                                    }
+                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">
+                                        <span su class="h6 mb-0">Выйти</span>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a asp-area="" asp-controller="Account" asp-action="Registration">Зарегистрироваться</a>
+                                <span>&nbsp;|&nbsp;</span>
+                                <a asp-area="" asp-controller="Account" asp-action="Login">Войти</a>
+                            </li>
+                        </ul>
+                    }
+
+                </div>
+                <!--end nav collapse-->
+            </nav>
+        </div>
+        <!--end of container-->
+    </div>
+</div>
+<div class="main-container bg-dark" style="width: 100%; height: 700px;">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="bg-dark text-light footer-long mt-auto">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" id="logo-text">MyTaskTracker</a>
+                <p class="text-muted">
+                    &copy; 2024 MyTaskTracker
+                </p>
+            </div>
+            <!--end of col-->
+            <div class="col-12 col-md-9">
+                <div class="row no-gutters">
+                    <div class="col-6 col-lg-3">
+                        <h6>Навигация</h6>
+                        <ul class="list-unstyled">
+                            <li>
+                                <a asp-area="" asp-controller="Home"
+                                   asp-action="Index">
+                                    Главная
+                                </a>
+                            </li>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <li>
+                                    <a asp-area="" asp-controller=""
+                                       asp-action="Index">
+                                        Мои задачи
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="" asp-controller=""
+                                       asp-action="Index">
+                                        Проекты
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="" asp-controller=""
+                                       asp-action="Index">
+                                        Создать задачу
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <!--end of row-->
+            </div>
+            <!--end of col-->
+        </div>
+        <!--end of row-->
+    </div>
+    <!--end of container-->
+</footer>
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/bootstrap.js"></script>
+<script src="~/js/theme.js"></script>
+<script src="~/js/custom.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

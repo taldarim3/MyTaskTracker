@@ -1,0 +1,71 @@
+﻿@using MyTaskTracker.ViewModels
+@model IndexOrganizationViewModel
+
+@{
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+
+    int resultStart = ((Model.Page - 1) * Model.PageSize) + 1;
+    int resultEnd = Math.Min(resultStart + Model.PageSize - 1, Model.TotalOrganizations);
+
+    bool isValidPage = resultStart <= Model.TotalOrganizations;
+
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+
+<section class="space-sm flush-with-above">
+    <div class="container">
+        <div class="row">
+        </div>
+    </div>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+        </div>
+        <ul class="row feature-list feature-list-sm">
+            @foreach (var organization in Model.Organizations)
+            {
+                <li class="col-12 col-md-6 col-lg-4">
+                    <div class="card">
+                        <a type="button" asp-controller="Organization" asp-action="Detail" asp-route-runningorganization="" asp-route-id="@organization.Id">
+                            <img class="card-img-top" src="/img/organization.jpg" alt="Card image cap">
+                        </a>
+                        <div class="card-body">
+                            <h4 class="card-title">@organization.Name</h4>
+                            <p class="card-text">@organization.Description</p>
+                        </div>
+                        <div class="card-footer card-footer-borderless d-flex justify-content-between">
+                            @if (isAuthenticated && User.IsInRole("admin"))
+                            {
+                                <div>
+                                    <a type="button" class="btn btn-sm btn-outline-info" asp-controller="Organization" asp-action="Edit" asp-route-id="@organization.Id">
+                                        Изменить
+                                    </a>
+                                    <a type="button" class="btn btn-sm btn-outline-danger" asp-controller="Organization" asp-action="Delete" asp-route-id="@organization.Id">
+                                        Удалить
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                @if (isValidPage)
+                {
+                    <a type="button" class="btn btn-sm btn-outline-primary @prevDisabled"
+                   asp-action="Index" asp-route-page="@(Model.Page - 1)">
+                        Пред.
+                    </a>
+                    <a type="button" class="btn btn-sm btn-outline-primary @nextDisabled"
+                   asp-action="Index" asp-route-page="@(Model.Page + 1)">
+                        След.
+                    </a>
+                    <span class="text-muted text-small">Результат @resultStart - @resultEnd of @Model.TotalOrganizations</span>
+                }
+            </div>
+        </div>
+    </div>
+</section>

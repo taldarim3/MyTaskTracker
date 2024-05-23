@@ -1,0 +1,117 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using MyTaskTracker.Models.Common.Enums
+@inject UserManager<User> UserManager
+@model MyTaskTracker.ViewModels.TaskViewModel
+
+@{
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
+<style>
+    .column {
+        padding: 0 15px; /* Adds spacing between columns */
+        border-right: 2px solid #eee; /* Adds vertical lines between columns */
+    }
+    .column:last-child {
+        border-right: none; /* Removes line from the last column */
+    }
+    .card {
+        margin-bottom: 20px; /* Adds spacing between cards */
+        border: 3px solid #007bff; /* Blue border around each card */
+    }
+</style>
+
+<section class="space-sm flush-with-above">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 column">
+                <h4>Открыто</h4>
+                @foreach (var task in Model.Tasks.Where(t => t.TaskStatus == MyTaskTracker.Models.Common.Enums.TaskStatus.Open))
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@task.Name</h5>
+                            <p class="card-text">@task.Description</p>
+                              <p class="card-text">Сложность: @TaskDiffExtensions.ToFriendlyString(task.Difficulty)</p>
+                            <p class="card-text">Оценка времени: @task.TimeEstimation ч</p>
+                            <p class="card-text">Затраченное время : @task.TimeSpent ч</p>
+                            @if (isAuthenticated)
+                            {
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = true })" class="btn btn-sm btn-primary">→</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-md-3 column">
+                <h4>В процессе</h4>
+                @foreach (var task in Model.Tasks.Where(t => t.TaskStatus == MyTaskTracker.Models.Common.Enums.TaskStatus.InProgress))
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@task.Name</h5>
+                            <p class="card-text">@task.Description</p>
+                            <p class="card-text">Сложность: @TaskDiffExtensions.ToFriendlyString(task.Difficulty)</p>
+                            <p class="card-text">Оценка времени: @task.TimeEstimation ч</p>
+                            <p class="card-text">Затраченное время : @task.TimeSpent ч</p>
+                            <form method="post" action="@Url.Action("AddTime", "Task", new { taskId = task.Id, email = currentUser.Email })">
+                                <input type="text" name="addedTime" placeholder="Добавить время (ч)" required>
+                                <button type="submit" class="btn btn-sm btn-primary">Добавить время</button>
+                            </form>
+                            @if (isAuthenticated)
+                            {
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = false })" class="btn btn-sm btn-primary">←</a>
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = true })" class="btn btn-sm btn-primary">→</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-md-3 column">
+                <h4>Решено</h4>
+                @foreach (var task in Model.Tasks.Where(t => t.TaskStatus == MyTaskTracker.Models.Common.Enums.TaskStatus.Resolved))
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@task.Name</h5>
+                            <p class="card-text">@task.Description</p>
+                              <p class="card-text">Сложность: @TaskDiffExtensions.ToFriendlyString(task.Difficulty)</p>
+                            <p class="card-text">Оценка времени: @task.TimeEstimation ч</p>
+                            <p class="card-text">Затраченное время : @task.TimeSpent ч</p>
+                            <form method="post" action="@Url.Action("AddTime", "Task", new { taskId = task.Id, email = currentUser.Email })">
+                                <input type="text" name="addedTime" placeholder="Добавить время (ч)" required>
+                                <button type="submit" class="btn btn-sm btn-primary">Добавить время</button>
+                            </form>
+                            @if (isAuthenticated)
+                            {
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = false })" class="btn btn-sm btn-primary">←</a>
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = true })" class="btn btn-sm btn-primary">→</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-md-3 column">
+                <h4>Закрыто</h4>
+                @foreach (var task in Model.Tasks.Where(t => t.TaskStatus == MyTaskTracker.Models.Common.Enums.TaskStatus.Closed))
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@task.Name</h5>
+                            <p class="card-text">@task.Description</p>
+                              <p class="card-text">Сложность: @TaskDiffExtensions.ToFriendlyString(task.Difficulty)</p>
+                            <p class="card-text">Оценка времени: @task.TimeEstimation ч</p>
+                            <p class="card-text">Затраченное время : @task.TimeSpent ч</p>
+                            @if (isAuthenticated)
+                            {
+                                <a href="@Url.Action("SetNextStatus", "Task", new { taskId = task.Id, email = currentUser.Email, step = false })" class="btn btn-sm btn-primary">←</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
